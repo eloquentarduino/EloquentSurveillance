@@ -1,0 +1,16 @@
+{
+  "name": "EloquentSurveillance",
+  "keywords": "",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eloquentarduino/EloquentSurveillance"
+  },
+  "version": "1.0.0",
+  "authors": {
+    "name": "Simone Salerno",
+    "url": "https://github.com/eloquentarduino"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}
