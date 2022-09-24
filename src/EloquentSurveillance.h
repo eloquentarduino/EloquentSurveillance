@@ -7,6 +7,7 @@
 
 #include "./globals.h"
 #include "./debug.h"
+#include "./WiFiHelper.h"
 #include "./Camera.h"
 #include "./StreamServer.h"
 #include "./FileServer.h"

@@ -105,6 +105,14 @@ namespace EloquentSurveillance {
          *
          * @return
          */
+        camera_fb_t* getFrame() {
+            return gIsFrame() ? gFrame : NULL;
+        }
+
+        /**
+         *
+         * @return
+         */
         uint8_t* getBuffer() {
             return gIsFrame() ? gFrame->buf : NULL;
         }

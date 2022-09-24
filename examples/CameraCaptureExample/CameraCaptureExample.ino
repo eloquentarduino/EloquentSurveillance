@@ -68,4 +68,9 @@ void loop() {
     }
 
     debug("SUCCCESS", camera.getFileSize());
+
+    /**
+     * Do whatever you want with the captured frame.
+     * Access it with `camera.getBuffer()` (it contains the JPEG frame as uint8_t*)
+     */
 }
