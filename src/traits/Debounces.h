@@ -29,7 +29,7 @@ namespace EloquentSurveillance {
          * @return
          */
         bool debounced() {
-            return millis() - _lastTick > _debounce;
+            return _lastTick == 0 || millis() - _lastTick > _debounce;
         }
 
         /**

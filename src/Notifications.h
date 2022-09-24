@@ -111,7 +111,7 @@ namespace EloquentSurveillance {
                 HTTPClient http;
 
                 http.begin(
-                    String(F("http://motion.eloquentarduino.com/api/devices/")) + _deviceToken + "/motion"
+                    String(F("http://api.motion.eloquentarduino.com/api/devices/")) + _deviceToken + "/motion"
                 );
                 http.addHeader(F("Content-Type"), "image/jpeg");
                 http.addHeader(F("X-User-Token"), _userToken);
@@ -126,10 +126,14 @@ namespace EloquentSurveillance {
                 verbose("Batch #", batch, ", Frame #", i + 1, " status code = ", statusCode);
 
                 if (statusCode != 200) {
-                    httpError = String("Server error: (") + statusCode + ") " + http.getString();
+                    String response = http.getString();
+
+                    httpError = String("Server error: (") + statusCode + ") " + response;
+                    verbose("Server ERROR: ", response);
                     status = false;
                 }
                 else {
+                    verbose("Server OK: ", http.getString());
                     succeded += 1;
                 }
 

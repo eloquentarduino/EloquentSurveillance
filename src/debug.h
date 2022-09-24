@@ -15,11 +15,13 @@
  */
 template<typename T>
 void debug(String stream, T message) {
+#ifdef VERBOSE
     Serial.print('[');
     Serial.print(stream);
     Serial.print(']');
     Serial.print(' ');
     Serial.println(message);
+#endif
 }
 
 
@@ -29,6 +31,8 @@ void debug(String stream, T message) {
 void verbose() {
 #ifdef VERBOSE
     Serial.println();
+    Serial.flush();
+    delay(10);
 #endif
 }
 
