@@ -1,3 +1,4 @@
+// turn on debug messages
 #define VERBOSE
 #include "EloquentSurveillance.h"
 
@@ -8,6 +9,10 @@
 #define WIFI_PASS "12345678"
 
 
+/**
+ * 80 is the port to listen to
+ * You can change it to whatever you want, 80 is the default for HTTP
+ */
 EloquentSurveillance::StreamServer streamServer(80);
 
 

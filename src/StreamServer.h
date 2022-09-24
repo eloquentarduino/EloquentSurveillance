@@ -104,7 +104,7 @@ namespace EloquentSurveillance {
             return
                 String(F("StreamServer listening at http://"))
                 + ip
-                + String(F(". MJPEG stream is available at "))
+                + String(F(".\nMJPEG stream is available at "))
                 + ip
                 + "/stream";
         }
