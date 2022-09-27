@@ -87,6 +87,7 @@ void loop() {
      */
     if (motion.update()) {
         debug("INFO", String("Motion detected in ") + motion.getExecutionTimeInMicros() + " us");
+        delay(5000);
     }
     else if (!motion.isOk()) {
         /**

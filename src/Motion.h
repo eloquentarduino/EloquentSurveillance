@@ -12,6 +12,7 @@
 #include "./traits/HasErrorMessage.h"
 #include "./traits/BenchmarksCode.h"
 #include "./traits/Debounces.h"
+#include "./traits/KeepsCount.h"
 
 
 /**
@@ -47,7 +48,7 @@ namespace EloquentSurveillance {
     /**
      * Motion detection from JPEG image
      */
-    class Motion : public HasErrorMessage, public BenchmarksCode, public Debounces {
+    class Motion : public HasErrorMessage, public BenchmarksCode, public Debounces, public KeepsCount {
     public:
 
         /**
@@ -57,7 +58,6 @@ namespace EloquentSurveillance {
             _oldSize(0) {
             _run.i = 0;
             _run.numChanges = 0;
-            _run.counter = 0;
 
             memset(_old, 0, sizeof (_old));
             setMinChanges(0.1);
@@ -115,7 +115,7 @@ namespace EloquentSurveillance {
                 uint16_t threshold = _config.sizeThreshold >= 1 ?
                      _config.sizeThreshold : _config.sizeThreshold * gFrame->len;
 
-                verbose("old size = ", _oldSize, ", new size = ", gFrame->len, ", thresh = ", threshold, ", diff = ", absdiff(frameSize, _oldSize));
+                verbose("old size = ", _oldSize, ", new size = ", frameSize, ", thresh = ", threshold, ", diff = ", absdiff(frameSize, _oldSize));
 
                 if (absdiff(frameSize, _oldSize) < threshold) {
                     _oldSize = frameSize;
@@ -159,27 +159,65 @@ namespace EloquentSurveillance {
                 }
             }
 
-            uint16_t changesThreshold = _config.numChanges >= 1 ? _config.numChanges : _config.numChanges * _run.i;
-
-            endBenchmark();
-            verbose("num changes = ", _run.numChanges, ", threshold = ", changesThreshold);
-
             if (!debounced()) {
                 _oldSize = gFrame->len;
+                endBenchmark();
 
                 return setErrorMessage("Too many updates");
             }
 
-            if (_run.numChanges >= changesThreshold) {
-                _run.counter += 1;
-                touch();
+            return detect();
+        }
 
-                // skip first detection
-                return _run.counter > 1;
+        /**
+         * Detect if motion triggered on the whole image
+         *
+         * @return
+         */
+        bool detect() {
+            uint16_t threshold = _config.numChanges >= 1 ? _config.numChanges : _config.numChanges * _run.i;
+            uint16_t changes = 0;
+
+            for (uint16_t i = 0; i < _run.i; i++)
+                if (_changed[i])
+                    changes += 1;
+
+            endBenchmark();
+            verbose("changes = ", changes, ", threshold = ", threshold);
+
+            if (changes >= threshold) {
+                incrementCount();
+
+                return getCount() > 1 && touch();
             }
 
             return false;
         }
+
+        /**
+         * Detect if motion triggered in ROI
+         *
+         * @return
+         */
+//        bool detect(Region region, float numChanges = 0) {
+//            if (numChanges == 0)
+//                numChanges = _config.numChanges;
+//
+//            uint16_t threshold = numChanges >= 1 ? numChanges : numChanges * region.getArea();
+//            uint16_t changes = 0;
+//            uint16_t lowerX = region.getLowerX();
+//            uint16_t upperX = region.getUpperX();
+//            uint16_t lowerY = region.getLowerY();
+//            uint16_t upperY = region.getUpperY();
+//
+//            for (uint16_t y = 0; y < _height; y++)
+//                if (y >= lowerY && y >= upperY)
+//                    for (uint16_t x = 0; x < _width; x++)
+//                        if (x >= lowerX && x <= upperX && _changed[i])
+//                            changes += 1;
+//
+//            return changes >= threshold;
+//        }
 
         /**
          *
@@ -190,11 +228,13 @@ namespace EloquentSurveillance {
         }
 
         /**
+         * Generate filename for new image
          *
+         * @param prefix
          * @return
          */
-        size_t getCount() {
-            return _run.counter;
+        String getNextFilename(String prefix = "/capture_") {
+            return prefix + getPersistentCount() + ".jpg";
         }
 
     protected:
@@ -206,11 +246,11 @@ namespace EloquentSurveillance {
         struct {
             uint16_t i;
             uint16_t numChanges;
-            size_t counter;
         } _run;
         uint16_t _oldSize;
         pjpeg_image_info_t _image;
         uint8_t _old[1600 * 1200 / 64];
+        bool _changed[1600 * 1200 / 64];
 
 
         /**
@@ -231,10 +271,13 @@ namespace EloquentSurveillance {
         void detectPixelChange(uint8_t p) {
             uint16_t thresh = _config.diff >= 1 ? _config.diff : _config.diff * p;
 
-            if (absdiff(p, _old[_run.i++]) > thresh)
-                _run.numChanges += 1;
+//            if (absdiff(p, _old[_run.i]) > thresh) {
+//                _run.numChanges += 1;
+//            }
 
-            _old[_run.i - 1] = p;
+            _changed[_run.i] = absdiff(p, _old[_run.i]) > thresh;
+            _old[_run.i] = p;
+            _run.i += 1;
         }
     };
 }

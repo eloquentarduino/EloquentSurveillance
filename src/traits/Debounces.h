@@ -16,12 +16,12 @@ namespace EloquentSurveillance {
          * @param value
          */
         void debounce(size_t value) {
-            _debounce = (size_t) (value < 10000 ? 10000 : value);
+            _debounce = (size_t) (value < 1000 ? 1000 : value);
         }
 
     protected:
         size_t _lastTick = 0;
-        size_t _debounce = 10000;
+        size_t _debounce = 3000;
 
         /**
          * Test if debounce time elapsed
@@ -34,9 +34,12 @@ namespace EloquentSurveillance {
 
         /**
          * Update last tick
+         * @return true
          */
-        void touch() {
+        bool touch() {
             _lastTick = millis();
+
+            return true;
         }
     };
 }

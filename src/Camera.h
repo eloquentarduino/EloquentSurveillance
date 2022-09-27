@@ -140,6 +140,7 @@ namespace EloquentSurveillance {
             auto file = fs.open(filename, "wb");
 
             file.write(gFrame->buf, gFrame->len);
+            file.close();
 
             return true;
         }

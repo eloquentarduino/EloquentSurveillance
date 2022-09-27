@@ -39,60 +39,6 @@ namespace EloquentSurveillance {
         }
 
         /**
-         *
-         * @param ssid
-         * @param password
-         * @param timeout
-         */
-        bool beginAsClient(const char* ssid, const char* password, uint16_t timeout = 10000) {
-            _isClient = true;
-            setErrorMessage("");
-
-            WiFi.mode(WIFI_STA);
-            WiFi.begin(ssid, password);
-
-            time_t start = millis();
-
-            while (millis() - start < timeout) {
-                if (WiFi.status() == WL_CONNECTED) {
-                    return begin();
-                }
-            }
-
-            return setErrorMessage("Cannot connect to WiFi as client");
-        }
-
-        /**
-         *
-         * @tparam Callback
-         * @param ssid
-         * @param password
-         * @param callback
-         * @param timeout
-         * @return
-         */
-        template<typename Callback>
-        bool beginAsClient(const char* ssid, const char* password, Callback callback, uint16_t timeout = 10000) {
-            _isClient = true;
-            setErrorMessage("");
-
-            WiFi.mode(WIFI_STA);
-            WiFi.begin(ssid, password);
-
-            time_t start = millis();
-
-            while (millis() - start < timeout) {
-                if (WiFi.status() == WL_CONNECTED)
-                    return begin();
-
-                callback(millis() - start);
-                delay(100);
-            }
-
-            return setErrorMessage("Cannot connect to WiFi as client");
-        }
-
-        /**
         *
         * @return
         */
@@ -174,19 +120,22 @@ namespace EloquentSurveillance {
         }
 
         /**
+         * Get address of server
          *
          * @return
          */
         String getWelcomeMessage() {
-            IPAddress ip = _isClient ? WiFi.localIP() : WiFi.softAPIP();
+            String ip = wifi.getIP();
 
-            return
-                String(F("FileServer listening at http://"))
-                + ip[0] + '.' + ip[1] + '.' + ip[2] + '.' + ip[3] + ':' + _port;
+            if (_port != 80) {
+                ip += ':';
+                ip += _port;
+            }
+
+            return String(F("FileServer listening at http://")) + ip;
         }
 
     protected:
-        bool _isClient;
         uint16_t _port;
         uint16_t _maxNumFiles;
         WebServer _server;
