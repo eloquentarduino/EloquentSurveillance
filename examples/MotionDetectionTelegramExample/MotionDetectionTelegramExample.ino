@@ -5,7 +5,7 @@
 
 #define WIFI_SSID "Abc"
 #define WIFI_PASS "12345678"
-#define BOT_TOKEN "5119992613:AAHvUuagbOsV46Rh3Ae3g7hY-e2yDBsRilM"
+#define BOT_TOKEN "XXXXXXXXXX:yyyyyyyyyyyyyyyyyyyyyyyy-zzzzzzzzzz"
 #define CHAT_ID 1234567890
 
 
