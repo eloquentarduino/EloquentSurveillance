@@ -85,7 +85,10 @@ void loop() {
      * In the `true` branch, you can handle a motion event.
      * For the moment, just print the processing time for motion detection.
      */
-    if (motion.update()) {
+    if (!motion.update())
+        return;
+
+    if (motion.detect()) {
         debug("INFO", String("Motion detected in ") + motion.getExecutionTimeInMicros() + " us");
         delay(5000);
     }

@@ -94,7 +94,10 @@ void loop() {
      * In the `true` branch, you can handle a motion event.
      * For this example, save the image to SPIFFS and print a debug message
      */
-    if (motion.update()) {
+    if (!motion.update())
+        return;
+
+    if (motion.detect()) {
         String filename = motion.getNextFilename();
 
         if (camera.saveTo(SPIFFS, filename)) {

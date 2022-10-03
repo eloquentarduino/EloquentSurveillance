@@ -73,9 +73,7 @@ void loop() {
     if (!motion.update())
         return;
 
-    bool roiDetect = motion.detect(region);
-
-    if (roiDetect) {
+    if (motion.detect(region)) {
         debug("INFO", "Motion detected in ROI");
         delay(5000);
     }

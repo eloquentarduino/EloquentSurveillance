@@ -68,7 +68,10 @@ void loop() {
      * In the `true` branch, you can handle a motion event.
      * In this case, we save the frame to disk
      */
-    if (motion.update()) {
+    if (!motion.update())
+        return;
+
+    if (motion.detect()) {
         /**
          * You can construct the filename as you prefer
          *  - motion.getCount() will return an incremental number *for the current run*

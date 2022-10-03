@@ -74,7 +74,10 @@ void loop() {
      * In the `true` branch, you can handle a motion event.
      * In this case, we send the photo to Telegram
      */
-    if (motion.update()) {
+    if (!motion.update())
+        return;
+
+    if (motion.detect()) {
         debug("INFO", String("Motion detected in ") + motion.getExecutionTimeInMicros() + " us");
 
         bool messageResponse = chat.sendMessage("Motion detected");
