@@ -58,26 +58,5 @@ uint16_t gRemaining() {
     return (uint16_t) gFrame->len - (uint16_t) gOffset;
 }
 
-/**
- * Connect to WiFi network
- *
- * @param ssid
- * @param password
- * @return
- */
-bool connectToWiFi(const char *ssid, const char *password, uint16_t timeout = 10000) {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-
-    uint16_t start = millis();
-
-    while (millis() - start < timeout) {
-        if (WiFi.status() == WL_CONNECTED)
-            return true;
-    }
-
-    return false;
-}
-
 
 #endif //ELOQUENTSURVEILLANCE_GLOBALS_H

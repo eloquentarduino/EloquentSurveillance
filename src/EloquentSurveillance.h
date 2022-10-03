@@ -13,5 +13,6 @@
 #include "./FileServer.h"
 #include "./Motion.h"
 #include "./Notifications.h"
+#include "./Region.h"
 
 #endif //ELOQUENTSURVEILLANCE_ELOQUENTSURVEILLANCE_H

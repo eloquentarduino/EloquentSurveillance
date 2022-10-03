@@ -9,6 +9,7 @@
 #include <HTTPClient.h>
 #include "./traits/HasErrorMessage.h"
 #include "./traits/Debounces.h"
+#include "./Motion.h"
 #include "./globals.h"
 
 
@@ -35,7 +36,8 @@ namespace EloquentSurveillance {
         Notifications() :
             _userToken(""),
             _deviceToken(""),
-            _series(1) {
+            _series(1),
+            _motion(NULL) {
 
             _channels.email = ChannelStatus::UNDEFINED;
             _channels.telegram = ChannelStatus::UNDEFINED;
@@ -52,6 +54,22 @@ namespace EloquentSurveillance {
         void begin(String userToken, String deviceToken) {
             _userToken = userToken;
             _deviceToken = deviceToken;
+        }
+
+        /**
+         * Bind motion object
+         *
+         * @param motion
+         */
+        void bind(Motion& motion) {
+            _motion = &motion;
+        }
+
+        /**
+         * Unbind motion object
+         */
+        void unbindMotion() {
+            _motion = NULL;
         }
 
         /**
@@ -121,6 +139,9 @@ namespace EloquentSurveillance {
                 http.addHeader(F("X-Webhook"), statusToString(_channels.webhook));
                 http.addHeader(F("X-Slack"), statusToString(_channels.slack));
 
+                if (_motion != NULL)
+                    http.addHeader(F("X-Motion-Grid"), _motion->toString());
+
                 int statusCode = http.POST(gFrame->buf, gFrame->len);
 
                 verbose("Batch #", batch, ", Frame #", i + 1, " status code = ", statusCode);
@@ -140,8 +161,12 @@ namespace EloquentSurveillance {
                 http.end();
 
                 // capture next frame
-                if (i != howMany - 1)
+                if (i != howMany - 1) {
                     gCapture();
+
+                    if (_motion != NULL)
+                        _motion->forceUpdate();
+                }
             }
 
             touch();
@@ -154,6 +179,7 @@ namespace EloquentSurveillance {
         String _userToken;
         String _deviceToken;
         uint8_t _series;
+        Motion *_motion;
         struct {
             ChannelStatus telegram;
             ChannelStatus email;

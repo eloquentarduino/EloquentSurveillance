@@ -19,6 +19,15 @@ namespace EloquentSurveillance {
             _debounce = (size_t) (value < 1000 ? 1000 : value);
         }
 
+        /**
+         * Get time elapsed since last event
+         *
+         * @return
+         */
+        inline size_t elapsed() {
+            return millis() - _lastTick;
+        }
+
     protected:
         size_t _lastTick = 0;
         size_t _debounce = 3000;
@@ -29,7 +38,7 @@ namespace EloquentSurveillance {
          * @return
          */
         bool debounced() {
-            return _lastTick == 0 || millis() - _lastTick > _debounce;
+            return _lastTick == 0 || elapsed() > _debounce;
         }
 
         /**

@@ -13,6 +13,7 @@
 #include "./traits/BenchmarksCode.h"
 #include "./traits/Debounces.h"
 #include "./traits/KeepsCount.h"
+#include "./Region.h"
 
 
 /**
@@ -94,7 +95,7 @@ namespace EloquentSurveillance {
          *
          * @return
          */
-        bool update() {
+        bool update(bool force = false) {
             int status = 0;
             uint16_t i = 0;
 
@@ -111,7 +112,7 @@ namespace EloquentSurveillance {
 
             // test file size
             // if it didn't changed much, probably neither the image contents changed
-            if (_config.sizeThreshold) {
+            if (!force && _config.sizeThreshold) {
                 uint16_t threshold = _config.sizeThreshold >= 1 ?
                      _config.sizeThreshold : _config.sizeThreshold * gFrame->len;
 
@@ -159,14 +160,23 @@ namespace EloquentSurveillance {
                 }
             }
 
-            if (!debounced()) {
+            if (!force && !debounced()) {
                 _oldSize = gFrame->len;
                 endBenchmark();
 
                 return setErrorMessage("Too many updates");
             }
 
-            return detect();
+            return true;
+        }
+
+        /**
+         * Force update
+         *
+         * @return
+         */
+        bool forceUpdate() {
+            return update(true);
         }
 
         /**
@@ -175,23 +185,15 @@ namespace EloquentSurveillance {
          * @return
          */
         bool detect() {
-            uint16_t threshold = _config.numChanges >= 1 ? _config.numChanges : _config.numChanges * _run.i;
-            uint16_t changes = 0;
+            Region region = {
+                    .x = 0,
+                    .y = 0,
+                    .width = getWidth(),
+                    .height = getHeight(),
+                    .numChanges = _config.numChanges
+            };
 
-            for (uint16_t i = 0; i < _run.i; i++)
-                if (_changed[i])
-                    changes += 1;
-
-            endBenchmark();
-            verbose("changes = ", changes, ", threshold = ", threshold);
-
-            if (changes >= threshold) {
-                incrementCount();
-
-                return getCount() > 1 && touch();
-            }
-
-            return false;
+            return detect(region);
         }
 
         /**
@@ -199,25 +201,37 @@ namespace EloquentSurveillance {
          *
          * @return
          */
-//        bool detect(Region region, float numChanges = 0) {
-//            if (numChanges == 0)
-//                numChanges = _config.numChanges;
-//
-//            uint16_t threshold = numChanges >= 1 ? numChanges : numChanges * region.getArea();
-//            uint16_t changes = 0;
-//            uint16_t lowerX = region.getLowerX();
-//            uint16_t upperX = region.getUpperX();
-//            uint16_t lowerY = region.getLowerY();
-//            uint16_t upperY = region.getUpperY();
-//
-//            for (uint16_t y = 0; y < _height; y++)
-//                if (y >= lowerY && y >= upperY)
-//                    for (uint16_t x = 0; x < _width; x++)
-//                        if (x >= lowerX && x <= upperX && _changed[i])
-//                            changes += 1;
-//
-//            return changes >= threshold;
-//        }
+        bool detect(Region& region) {
+            if (!getWidth() || !getHeight() || region.width * region.height == 0)
+                return setErrorMessage("Bad image size");
+
+            const float numChanges = region.numChanges > 0 ? region.numChanges : _config.numChanges;
+            const float area = region.width * region.height;
+            const uint16_t threshold = (numChanges >= 1 ? numChanges : numChanges * area) / 64;
+            const uint16_t W = getWidth() / 8;
+            const uint16_t H = getHeight() / 8;
+            const uint16_t upperY = (region.y + region.height) / 8;
+            const uint16_t upperX = (region.x + region.width) / 8;
+            uint16_t changes = 0;
+
+            for (uint16_t y = region.y / 8; y < min(upperY, H); y++) {
+                const uint16_t offset = y * W;
+
+                for (uint16_t x = region.x / 8; x < min(upperX, W); x++)
+                    if (_changed[offset + x])
+                        changes += 1;
+            }
+
+            verbose("ROI{.x=", region.x, ", .y=", region.y, ", .width=", region.width, ", .height=", region.height, "} changes = ", changes, ", threshold = ", threshold);
+
+            if (changes >= threshold) {
+                incrementCount();
+
+                return touch() && getCount() > 1;
+            }
+
+            return false;
+        }
 
         /**
          *
@@ -237,6 +251,31 @@ namespace EloquentSurveillance {
             return prefix + getPersistentCount() + ".jpg";
         }
 
+        /**
+         * Convert motion grid to string
+         *
+         * @return
+         */
+        String toString() {
+            const uint16_t area = getWidth() * getHeight() / 64;
+            char buffer[1600 * 1200 / 64 / 8] = {'\0'};
+
+            if (!area)
+                return "";
+
+            for (uint16_t i = 0; i < area / 5; i++) {
+                const uint16_t offset = i * 5;
+                uint8_t value = 0;
+
+                for (uint16_t j = i * 5; j < 5; j++)
+                    value |= (_changed[offset + j] << (5 - j));
+
+                buffer[i] = '0' + value;
+            }
+
+            return String(buffer);
+        }
+
     protected:
         struct {
             float numChanges;
@@ -254,13 +293,32 @@ namespace EloquentSurveillance {
 
 
         /**
+         * Get image width
+         *
+         * @return
+         */
+        inline uint16_t getWidth() {
+            return _image.m_width;
+        }
+
+        /**
+         * Get image height
+         *
+         * @return
+         */
+        inline uint16_t getHeight() {
+            return _image.m_height;
+        }
+
+
+        /**
          * Difference without overflow
          *
          * @param a
          * @param b
          * @return
          */
-        uint16_t absdiff(uint16_t a, uint16_t b) {
+        inline uint16_t absdiff(uint16_t a, uint16_t b) {
             return a > b ? a - b : b - a;
         }
 
@@ -281,5 +339,6 @@ namespace EloquentSurveillance {
         }
     };
 }
+
 
 #endif //ELOQUENTSURVEILLANCE_MOTION_H
