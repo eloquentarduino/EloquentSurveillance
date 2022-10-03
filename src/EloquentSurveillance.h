@@ -12,7 +12,7 @@
 #include "./StreamServer.h"
 #include "./FileServer.h"
 #include "./Motion.h"
-#include "./Notifications.h"
+#include "./Dashboard.h"
 #include "./Region.h"
 
 #endif //ELOQUENTSURVEILLANCE_ELOQUENTSURVEILLANCE_H

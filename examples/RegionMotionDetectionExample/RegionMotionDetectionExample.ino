@@ -12,8 +12,8 @@ EloquentSurveillance::Motion motion;
  * Create region of interest
  */
 EloquentSurveillance::Region region = {
-        .x = 100,
-        .y = 100,
+        .x = 100, // top-left corner x coordinate
+        .y = 100, // top-left corner y coordinate
         .width = 50,
         .height = 240,
         // inherit from motion configuration

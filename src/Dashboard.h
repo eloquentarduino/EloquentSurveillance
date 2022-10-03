@@ -27,15 +27,15 @@ namespace EloquentSurveillance {
     /**
      * Notification center
      */
-    class Notifications : public HasErrorMessage, public Debounces {
+    class Dashboard : public HasErrorMessage, public Debounces {
     public:
 
         /**
          *
          */
-        Notifications() :
-            _userToken(""),
-            _deviceToken(""),
+        Dashboard(const char *userToken = "", const char *deviceToken = "") :
+            _userToken(userToken),
+            _deviceToken(deviceToken),
             _series(1),
             _motion(NULL) {
 

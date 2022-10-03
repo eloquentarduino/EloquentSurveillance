@@ -31,6 +31,8 @@ namespace EloquentSurveillance {
             while (millis() - start < timeout) {
                 if (WiFi.status() == WL_CONNECTED)
                     return (_isConnected = true);
+
+                delay(100);
             }
 
             return false;
