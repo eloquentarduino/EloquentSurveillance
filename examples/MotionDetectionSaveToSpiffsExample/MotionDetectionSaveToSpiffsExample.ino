@@ -1,4 +1,8 @@
-// turn on debug messages
+/**
+ * Save motion capture to SPIFFS filesysten
+ * @author EloquentArduino <support@eloquentarduino.com>
+ */
+ // turn on debug messages
 #define VERBOSE
 #include <SPIFFS.h>
 #include "EloquentSurveillance.h"
