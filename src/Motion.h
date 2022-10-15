@@ -51,6 +51,7 @@ namespace EloquentSurveillance {
      */
     class Motion : public HasErrorMessage, public BenchmarksCode, public Debounces, public KeepsCount {
     public:
+        uint8_t pixels[1600 * 1200 / 64];
 
         /**
          *
@@ -60,7 +61,7 @@ namespace EloquentSurveillance {
             _run.i = 0;
             _run.numChanges = 0;
 
-            memset(_old, 0, sizeof (_old));
+            memset(pixels, 0, sizeof (pixels));
             setMinChanges(0.1);
             setMinPixelDiff(10);
             setMinSizeDiff(0.05);
@@ -88,6 +89,24 @@ namespace EloquentSurveillance {
          */
         void setMinSizeDiff(float value) {
             _config.sizeThreshold = value;
+        }
+
+        /**
+         * Get image width
+         *
+         * @return
+         */
+        inline uint16_t getWidth() {
+            return _image.m_width;
+        }
+
+        /**
+         * Get image height
+         *
+         * @return
+         */
+        inline uint16_t getHeight() {
+            return _image.m_height;
         }
 
         /**
@@ -288,27 +307,7 @@ namespace EloquentSurveillance {
         } _run;
         uint16_t _oldSize;
         pjpeg_image_info_t _image;
-        uint8_t _old[1600 * 1200 / 64];
         bool _changed[1600 * 1200 / 64];
-
-
-        /**
-         * Get image width
-         *
-         * @return
-         */
-        inline uint16_t getWidth() {
-            return _image.m_width;
-        }
-
-        /**
-         * Get image height
-         *
-         * @return
-         */
-        inline uint16_t getHeight() {
-            return _image.m_height;
-        }
 
 
         /**
@@ -329,12 +328,8 @@ namespace EloquentSurveillance {
         void detectPixelChange(uint8_t p) {
             uint16_t thresh = _config.diff >= 1 ? _config.diff : _config.diff * p;
 
-//            if (absdiff(p, _old[_run.i]) > thresh) {
-//                _run.numChanges += 1;
-//            }
-
-            _changed[_run.i] = absdiff(p, _old[_run.i]) > thresh;
-            _old[_run.i] = p;
+            _changed[_run.i] = absdiff(p, pixels[_run.i]) > thresh;
+            pixels[_run.i] = p;
             _run.i += 1;
         }
     };
