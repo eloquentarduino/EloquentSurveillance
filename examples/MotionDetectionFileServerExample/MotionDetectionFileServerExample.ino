@@ -1,6 +1,9 @@
-#include <SPIFFS.h>
-#include "EloquentSurveillance.h"
-
+/**
+ * Save motion captures to SD and display on a web page
+ */
+#include <EloquentSurveillance.h>
+#include <SD_MMC.h>
+#include <SPI.h>
 
 #define WIFI_SSID "Abc"
 #define WIFI_PASS "12345678"
@@ -8,10 +11,11 @@
 
 EloquentSurveillance::Motion motion;
 /**
+ * You can replace SD_MMC with SPIFFS or SD
  * 80 is the port to listen to
  * You can change it to whatever you want, 80 is the default for HTTP
  */
-EloquentSurveillance::FileServer fileServer(80);
+EloquentSurveillance::FileServer fileServer(SD_MMC, 80);
 
 
 /**
@@ -55,8 +59,8 @@ void setup() {
      * Initialize the filesystem
      * If something goes wrong, print an error message
      */
-    while (!SPIFFS.begin(true))
-        debug("ERROR", "Cannot init SPIFFS");
+    while (!SD_MMC.begin() || SD_MMC.cardType() == CARD_NONE)
+        debug("ERROR", "Cannot init SD card");
 
     /**
      * Initialize the file server
@@ -100,7 +104,7 @@ void loop() {
     if (motion.detect()) {
         String filename = motion.getNextFilename();
 
-        if (camera.saveTo(SPIFFS, filename)) {
+        if (camera.saveTo(SD_MMC, filename)) {
             debug("INFO", String("Frame saved to SPIFFS: ") + filename);
             debug("INFO", "Refresh the file server webpage to see the new file");
         }

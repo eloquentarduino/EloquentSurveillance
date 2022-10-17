@@ -9,14 +9,6 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <FS.h>
-#ifdef USE_SD
-#include <SD.h>
-#include <SPI.h>
-#define ELOQUENTSURVEILLANCE_FILESERVER_FS SD
-#else
-#include <SPIFFS.h>
-#define ELOQUENTSURVEILLANCE_FILESERVER_FS SPIFFS
-#endif
 #include "./traits/HasErrorMessage.h"
 
 
@@ -31,7 +23,8 @@ namespace EloquentSurveillance {
          *
          * @param port
          */
-        FileServer(uint16_t port = 81) :
+        FileServer(fs::FS &fs, uint16_t port = 80) :
+            _fs(fs),
             _port(port),
             _server(port),
             _maxNumFiles(100) {
@@ -47,7 +40,7 @@ namespace EloquentSurveillance {
                 String html = String(F("<table border=\"1\"><thead><tr><th>Idx</th><th>Filename</th><th>Size</th></tr></thead><tbody>"));
 
                 uint16_t i = 1;
-                File root = ELOQUENTSURVEILLANCE_FILESERVER_FS.open("/");
+                File root = _fs.open("/");
                 File file = root.openNextFile();
 
                 while (file) {
@@ -83,7 +76,7 @@ namespace EloquentSurveillance {
 
                 if (uri.indexOf("/view/") == 0) {
                     String path = uri.substring(5);
-                    File file = ELOQUENTSURVEILLANCE_FILESERVER_FS.open(path, "r");
+                    File file = _fs.open(path, "r");
 
                     verbose("View file = ", path);
 
@@ -136,6 +129,7 @@ namespace EloquentSurveillance {
         }
 
     protected:
+        fs::FS _fs;
         uint16_t _port;
         uint16_t _maxNumFiles;
         WebServer _server;
