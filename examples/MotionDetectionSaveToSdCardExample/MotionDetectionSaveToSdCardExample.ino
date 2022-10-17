@@ -5,12 +5,9 @@
 // turn on debug messages
 #define VERBOSE
 #include <FS.h>
-#include <SD.h>
+#include <SD_MMC.h>
 #include <SPI.h>
 #include "EloquentSurveillance.h"
-
-// Define CS pin for the SD card module
-#define SD_CS 5
 
 
 /**
@@ -53,7 +50,7 @@ void setup() {
      * Initialize the filesystem
      * If something goes wrong, print an error message
      */
-    while (!SD.begin(SD_CS) || SD.cardType() == CARD_NONE)
+    while (!SD_MMC.begin() || SD_MMC.cardType() == CARD_NONE)
         debug("ERROR", "Cannot init SD Card");
 
     debug("SUCCESS", "Camera OK");
@@ -91,7 +88,7 @@ void loop() {
         //String filename = String("/capture_") + motion.getPersistentCount() + ".jpg";
         String filename = motion.getNextFilename("/capture_");
 
-        if (camera.saveTo(SD, filename)) {
+        if (camera.saveTo(SD_MMC, filename)) {
             debug("SUCCESS", "Frame saved to disk");
             debug("SUCCESS", filename);
         }
