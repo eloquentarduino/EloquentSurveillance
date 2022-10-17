@@ -12,10 +12,10 @@ EloquentSurveillance::Motion motion;
  * Create region of interest
  */
 EloquentSurveillance::Region region = {
-        .x = 100, // top-left corner x coordinate
-        .y = 100, // top-left corner y coordinate
-        .width = 50,
-        .height = 240,
+        .x = 50, // top-left corner x coordinate
+        .y = 50, // top-left corner y coordinate
+        .width = 100,
+        .height = 100,
         // inherit from motion configuration
         .numChanges = 0
 };
@@ -76,9 +76,5 @@ void loop() {
     if (motion.detect(region)) {
         debug("INFO", "Motion detected in ROI");
         delay(5000);
-    }
-
-    if (!motion.isOk()) {
-        debug("ERROR", motion.getErrorMessage());
     }
 }
