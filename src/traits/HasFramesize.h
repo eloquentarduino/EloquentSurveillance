@@ -35,6 +35,27 @@ namespace EloquentSurveillance {
         }
 
         /**
+         * Set SVGA resolution
+         */
+        void svga() {
+            _framesize = FRAMESIZE_SVGA;
+        }
+
+        /**
+         * Set XGA resolution
+         */
+        void xga() {
+            _framesize = FRAMESIZE_XGA;
+        }
+
+        /**
+         * Set UXGA resolution
+         */
+        void uxga() {
+            _framesize = FRAMESIZE_UXGA;
+        }
+
+        /**
          * Get width of captured image
          * @return
          */
@@ -46,6 +67,12 @@ namespace EloquentSurveillance {
                     return 320;
                 case FRAMESIZE_VGA:
                     return 640;
+                case FRAMESIZE_SVGA:
+                    return 800;
+                case FRAMESIZE_XGA:
+                    return 1024;
+                case FRAMESIZE_UXGA:
+                    return 1600;
                 default:
                     return 0;
             }
@@ -63,6 +90,12 @@ namespace EloquentSurveillance {
                     return 240;
                 case FRAMESIZE_VGA:
                     return 480;
+                case FRAMESIZE_SVGA:
+                    return 600;
+                case FRAMESIZE_XGA:
+                    return 768;
+                case FRAMESIZE_UXGA:
+                    return 1200;
                 default:
                     return 0;
             }

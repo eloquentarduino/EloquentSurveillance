@@ -31,6 +31,9 @@ void setup() {
      *  - qqvga()
      *  - qvga()
      *  - vga()
+     *  - svga()
+     *  - xga()
+     *  - uxga()
      */
     camera.qvga();
 
