@@ -44,10 +44,20 @@ namespace EloquentSurveillance {
             });
         }
 
+        /**
+         * Reset counter when above given value
+         *
+         * @param upperThreshold
+         */
+        void resetWhenGreaterThan(uint32_t upperThreshold) {
+            _upperThreshold = upperThreshold;
+        }
+
     protected:
         bool _read = false;
         uint32_t _runCount = 0;
         uint32_t _persistentCount = 0;
+        uint32_t _upperThreshold = 0;
 
         /**
          * Read stored count
@@ -67,6 +77,13 @@ namespace EloquentSurveillance {
          */
         void incrementCount() {
             initializeCount();
+
+            // reset counter above threshold
+            if (_upperThreshold > 0 && _runCount >= _upperThreshold)
+                _runCount = 0;
+
+            if (_upperThreshold > 0 && _persistentCount >= _upperThreshold)
+                _persistentCount = 0;
 
             _runCount += 1;
             _persistentCount += 1;
