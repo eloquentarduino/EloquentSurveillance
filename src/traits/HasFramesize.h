@@ -28,6 +28,13 @@ namespace EloquentSurveillance {
         }
 
         /**
+         * Set HVGA resolution
+         */
+        void qvga() {
+            _framesize = FRAMESIZE_HVGA;
+        }
+
+        /**
          * Set VGA resolution
          */
         void vga() {
@@ -65,6 +72,8 @@ namespace EloquentSurveillance {
                     return 160;
                 case FRAMESIZE_QVGA:
                     return 320;
+                case FRAMESIZE_HVGA:
+                    return 480;
                 case FRAMESIZE_VGA:
                     return 640;
                 case FRAMESIZE_SVGA:
@@ -88,6 +97,8 @@ namespace EloquentSurveillance {
                     return 120;
                 case FRAMESIZE_QVGA:
                     return 240;
+                case FRAMESIZE_HVGA:
+                    return 320;
                 case FRAMESIZE_VGA:
                     return 480;
                 case FRAMESIZE_SVGA:
