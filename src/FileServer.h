@@ -37,7 +37,9 @@ namespace EloquentSurveillance {
         */
         bool begin() {
             _server.on("/", HTTP_GET, [this]() {
-                String html = String(F("<table border=\"1\"><thead><tr><th>Idx</th><th>Filename</th><th>Size</th></tr></thead><tbody>"));
+                _server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+                _server.send(200, "text/html", "");
+                _server.sendContent(F("<table border=\"1\"><thead><tr><th>Idx</th><th>Filename</th><th>Size</th></tr></thead><tbody>"));
 
                 uint16_t i = 1;
                 File root = _fs.open("/");
@@ -48,15 +50,15 @@ namespace EloquentSurveillance {
                     String filename = file.name();
 
                     if (filename.indexOf(".jpeg") || filename.indexOf(".jpg")) {
-                        html += F("<tr><td>");
-                        html += (i++);
-                        html += F("</td><td><a href=\"/view");
-                        html += filename;
-                        html += F("\" target=\"_blank\">");
-                        html += filename.substring(1);
-                        html += F("</a></td><td>");
-                        html += formatBytes(file.size());
-                        html += F("</td></tr>");
+                        _server.sendContent(F("<tr><td>"));
+                        _server.sendContent(String(i++));
+                        _server.sendContent(F("</td><td><a href=\"/view"));
+                        _server.sendContent(filename);
+                        _server.sendContent(F("\" target=\"_blank\">"));
+                        _server.sendContent(filename.substring(1));
+                        _server.sendContent(F("</a></td><td>"));
+                        _server.sendContent(formatBytes(file.size()));
+                        _server.sendContent(F("</td></tr>"));
                     }
 
                     if (i > _maxNumFiles)
@@ -65,9 +67,10 @@ namespace EloquentSurveillance {
                     file = root.openNextFile();
                 }
 
-                html += F("</tbody></table>");
+                _server.sendContent(F("</tbody></table>"));
+                _server.sendContent(F(""));
+                _server.client().stop();
 
-                this->_server.send(200, "text/html", html);
                 return true;
             });
 
@@ -133,18 +136,6 @@ namespace EloquentSurveillance {
         uint16_t _port;
         uint16_t _maxNumFiles;
         WebServer _server;
-
-        /**
-         * Test is SD is attached
-         * @return
-         */
-        bool hasSD() {
-#ifdef USE_SD
-            return SD.cardType() != CARD_NONE;
-#else
-            return false;
-#endif
-        }
 
         /**
          *
