@@ -28,12 +28,28 @@ void setup() {
     /**
      * Configure camera resolution
      * Allowed values are:
-     *  - qqvga()
-     *  - qvga()
-     *  - vga()
-     *  - svga()
-     *  - xga()
-     *  - uxga()
+     * - _96x96()
+     * - qqvga()
+     * - qcif()
+     * - hqvga()
+     * - _240x240()
+     * - qvga()
+     * - cif()
+     * - hvga()
+     * - vga()
+     * - svga()
+     * - xga()
+     * - hd()
+     * - sxga()
+     * - uxga()
+     * - fhd()
+     * - p_hd()
+     * - p_3mp()
+     * - qxga()
+     * - qhd()
+     * - wqxga()
+     * - p_fhd()
+     * - qsxga()
      */
     camera.qvga();
 
