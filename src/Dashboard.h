@@ -139,9 +139,6 @@ namespace EloquentSurveillance {
                 http.addHeader(F("X-Webhook"), statusToString(_channels.webhook));
                 http.addHeader(F("X-Slack"), statusToString(_channels.slack));
 
-                if (_motion != NULL)
-                    http.addHeader(F("X-Motion-Grid"), _motion->toString());
-
                 int statusCode = http.POST(gFrame->buf, gFrame->len);
 
                 verbose("Batch #", batch, ", Frame #", i + 1, " status code = ", statusCode);

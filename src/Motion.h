@@ -15,6 +15,10 @@
 #include "./traits/KeepsCount.h"
 #include "./Region.h"
 
+#ifndef CAMERA_MAX_RESOLUTION
+#define CAMERA_MAX_RESOLUTION 1600L * 1200L
+#endif
+
 
 /**
  * Callback for picojpeg decoding
@@ -51,7 +55,7 @@ namespace EloquentSurveillance {
      */
     class Motion : public HasErrorMessage, public BenchmarksCode, public Debounces, public KeepsCount {
     public:
-        uint8_t pixels[1600 * 1200 / 64];
+        uint8_t pixels[CAMERA_MAX_RESOLUTION / 64];
 
         /**
          *
@@ -270,30 +274,6 @@ namespace EloquentSurveillance {
             return prefix + getPersistentCount() + ".jpg";
         }
 
-        /**
-         * Convert motion grid to string
-         *
-         * @return
-         */
-        String toString() {
-            const uint16_t area = getWidth() * getHeight() / 64;
-            char buffer[1600 * 1200 / 64 / 8] = {'\0'};
-
-            if (!area)
-                return "";
-
-            for (uint16_t i = 0; i < area / 5; i++) {
-                const uint16_t offset = i * 5;
-                uint8_t value = 0;
-
-                for (uint16_t j = i * 5; j < 5; j++)
-                    value |= (_changed[offset + j] << (5 - j));
-
-                buffer[i] = '0' + value;
-            }
-
-            return String(buffer);
-        }
 
     protected:
         struct {
@@ -307,7 +287,7 @@ namespace EloquentSurveillance {
         } _run;
         uint16_t _oldSize;
         pjpeg_image_info_t _image;
-        bool _changed[1600 * 1200 / 64];
+        bool _changed[CAMERA_MAX_RESOLUTION / 64];
 
 
         /**
