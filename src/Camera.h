@@ -10,6 +10,7 @@
 #include "./traits/HasFramesize.h"
 #include "./traits/SetJpegQuality.h"
 #include "./traits/ChooseModel.h"
+#include "./traits/ConfiguresImageSensor.h"
 #include "./traits/HasErrorMessage.h"
 #include "./globals.h"
 
@@ -18,7 +19,12 @@ namespace EloquentSurveillance {
     /**
      * Esp32 cam interface
      */
-    class Camera : public HasFramesize, public SetJpegQuality, public ChooseModel, public HasErrorMessage {
+    class Camera :
+            public HasFramesize,
+            public SetJpegQuality,
+            public ChooseModel,
+            public ConfiguresImageSensor,
+            public HasErrorMessage {
     public:
         /**
          *
@@ -93,6 +99,7 @@ namespace EloquentSurveillance {
             return true;
         }
 
+
         /**
          *
          * @return
@@ -148,7 +155,6 @@ namespace EloquentSurveillance {
 
     protected:
         camera_config_t _config;
-        sensor_t *_sensor;
     };
 }
 
