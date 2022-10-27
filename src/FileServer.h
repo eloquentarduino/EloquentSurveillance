@@ -52,7 +52,7 @@ namespace EloquentSurveillance {
                     if (filename.indexOf(".jpeg") || filename.indexOf(".jpg")) {
                         _server.sendContent(F("<tr><td>"));
                         _server.sendContent(String(i++));
-                        _server.sendContent(F("</td><td><a href=\"/view/"));
+                        _server.sendContent(F("</td><td><a href=\"/view"));
                         _server.sendContent(filename);
                         _server.sendContent(F("\" target=\"_blank\">"));
                         _server.sendContent(filename.substring(1));
@@ -77,11 +77,23 @@ namespace EloquentSurveillance {
             _server.onNotFound([this]() {
                 String uri = this->_server.uri();
 
-                if (uri.indexOf("/view/") == 0) {
+                if (uri.indexOf("/view") == 0) {
                     String path = uri.substring(5);
-                    File file = _fs.open(path, "r");
 
-                    verbose("View file = ", path);
+                    _server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+                    _server.send(200, "text/html", "");
+                    _server.sendContent(F("<button id=\"rotate\" style=\"position:absolute;top:10px;left:10px;z-index:1;\">Rotate</button><div id=\"frame\" style=\"display:flex\"><img id=\"image\" src=\"/raw"));
+                    _server.sendContent(path);
+                    _server.sendContent(F("\" style=\"margin-top:auto;\" /></div><script>"));
+                    _server.sendContent(F("document.addEventListener(\"DOMContentLoaded\",function(){setTimeout(function(){var t=document.getElementById(\"frame\"),e=document.getElementById(\"image\"),n=document.getElementById(\"rotate\"),d=0;t.style.height=Math.max(e.clientHeight,e.naturalHeight,e.clientWidth,e.naturalWidth)+\"px\",n.addEventListener(\"click\",function(){d=(d+90)%360,e.style.transform=\"rotate(\"+d+\"deg)\"})},1e3)});"));
+                    _server.sendContent(F("</script>"));
+                    _server.sendContent(F(""));
+                    _server.client().stop();
+                }
+
+                if (uri.indexOf("/raw") == 0) {
+                    String path = uri.substring(4);
+                    File file = _fs.open(path, "r");
 
                     if (file.size()) {
                         this->_server.streamFile(file, "image/jpeg");
