@@ -55,7 +55,7 @@ namespace EloquentSurveillance {
                         _server.sendContent(F("</td><td><a href=\"/view"));
                         _server.sendContent(filename);
                         _server.sendContent(F("\" target=\"_blank\">"));
-                        _server.sendContent(filename.substring(1));
+                        _server.sendContent(filename);
                         _server.sendContent(F("</a></td><td>"));
                         _server.sendContent(formatBytes(file.size()));
                         _server.sendContent(F("</td></tr>"));

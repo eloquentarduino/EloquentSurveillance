@@ -257,11 +257,53 @@ namespace EloquentSurveillance {
         }
 
         /**
+         * Try to locate region of motion
+         */
+        void locate() {
+            locate1();
+
+            if (_location.ratio < 0.85)
+                locate2();
+        }
+
+        /**
          *
          * @return
          */
         uint16_t getNumChanges() {
             return _run.numChanges;
+        }
+
+        /**
+         *
+         * @return
+         */
+        uint16_t getX() {
+            return _location.x * 8;
+        }
+
+        /**
+         *
+         * @return
+         */
+        uint16_t getY() {
+            return _location.y * 8;
+        }
+
+        /**
+         *
+         * @return
+         */
+        uint16_t getSize() {
+            return _location.size * 8;
+        }
+
+        /**
+         *
+         * @return
+         */
+        uint16_t getRatio() {
+            return _location.ratio;
         }
 
         /**
@@ -285,6 +327,12 @@ namespace EloquentSurveillance {
             uint16_t i;
             uint16_t numChanges;
         } _run;
+        struct {
+            uint16_t x;
+            uint16_t y;
+            uint8_t size;
+            float ratio;
+        } _location;
         uint16_t _oldSize;
         pjpeg_image_info_t _image;
         bool _changed[CAMERA_MAX_RESOLUTION / 64];
@@ -311,6 +359,104 @@ namespace EloquentSurveillance {
             _changed[_run.i] = absdiff(p, pixels[_run.i]) > thresh;
             pixels[_run.i] = p;
             _run.i += 1;
+        }
+
+        /**
+         *
+         * @return
+         */
+        void locate1() {
+            _location.x = 0;
+            _location.y = 0;
+            _location.size = 10;
+            _location.ratio = 0;
+
+            uint8_t blockSize = _location.size;
+
+            for (uint16_t y = 0, H = getHeight() / 8; y < H - blockSize; y += blockSize / 2) {
+                for (uint16_t x = 0, W = getWidth() / 8; x < W - blockSize; x += blockSize / 2) {
+                    uint16_t confidence = 0;
+                    uint16_t support = 0;
+
+                    for (uint16_t j = y; j < y + blockSize; j++) {
+                        uint32_t offset = j * W;
+
+                        for (uint16_t i = x; i < x + blockSize; i++) {
+                            if (_changed[offset + i])
+                                confidence += 1;
+
+                            support += 1;
+                        }
+                    }
+
+                    float ratio = confidence / support;
+
+                    if (ratio > _location.ratio) {
+                        _location.y = y;
+                        _location.x = x;
+                        _location.ratio = ratio;
+                    }
+                }
+            }
+        }
+
+        /**
+         *
+         */
+        void locate2() {
+            _location.size = 4;
+            _location.ratio = 0;
+
+            uint8_t blockSize = _location.size;
+
+            for (uint16_t y = _location.y > blockSize / 2 ? ; y < _location.y + blockSize; y += blockSize / 2) {
+                for (uint16_t x = _location.x; x < _location.x + blockSize; x += blockSize / 2) {
+                    uint16_t confidence = 0;
+                    uint16_t support = 0;
+
+                    for (uint16_t j = y; j < y + blockSize; j++) {
+                        uint32_t offset = j * W;
+
+                        for (uint16_t i = x; i < x + blockSize; i++) {
+                            if (_changed[offset + i])
+                                confidence += 1;
+
+                            support += 1;
+                        }
+                    }
+
+                    float ratio = confidence / support;
+
+                    if (ratio > _location.ratio) {
+                        _location.y = y;
+                        _location.x = x;
+                        _location.ratio = ratio;
+                    }
+                }
+            }
+        }
+
+        /**
+         *
+         */
+         template<typename Callback, typename Reducer>
+        void forEachBlock(Callback callback, Reducer& reducer, uint16_t x, uint16_t y, uint16_t width, uitn16_t height, uint8_t size) {
+            for (uint16_t j = y; j < height - size; j += size / 2) {
+                for (uint16_t i = x; i < width - size; i += size / 2) {
+                    reducer.newBlock();
+
+                    for (uint32_t jj = y; jj < size; jj++) {
+                        uint32_t offset = jj * width;
+
+                        for (uint16_t ii = x; ii < size; ii++)
+                            reducer.push(_changed[offset + 1]);
+                    }
+
+                    reducer.endBlock();
+                }
+            }
+
+            callback(reducer);
         }
     };
 }
