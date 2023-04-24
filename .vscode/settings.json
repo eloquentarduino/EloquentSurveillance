@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "compare": "cpp",
+        "cstdint": "cpp"
+    }
+}
