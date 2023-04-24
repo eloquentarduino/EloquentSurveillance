@@ -52,7 +52,7 @@ namespace EloquentSurveillance {
                     if (filename.indexOf(".jpeg") || filename.indexOf(".jpg")) {
                         _server.sendContent(F("<tr><td>"));
                         _server.sendContent(String(i++));
-                        _server.sendContent(F("</td><td><a href=\"/view"));
+                        _server.sendContent(F("</td><td><a href=\"/view/"));
                         _server.sendContent(filename);
                         _server.sendContent(F("\" target=\"_blank\">"));
                         _server.sendContent(filename);
