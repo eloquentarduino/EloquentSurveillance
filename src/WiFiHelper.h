@@ -55,7 +55,7 @@ namespace EloquentSurveillance {
         String getIP() {
             IPAddress ip = _isClient ? WiFi.localIP() : WiFi.softAPIP();
 
-            return String(ip[0]) + '.' + ip[1] + '.' + ip[2] + '.' + ip[3];
+            return String(ip[0] + '.' + ip[1] + '.' + ip[2] + '.' + ip[3]);
         }
 
 

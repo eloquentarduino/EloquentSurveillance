@@ -409,13 +409,13 @@ namespace EloquentSurveillance {
 
             uint8_t blockSize = _location.size;
 
-            for (uint16_t y = _location.y > blockSize / 2 ? ; y < _location.y + blockSize; y += blockSize / 2) {
+            for (uint16_t y = _location.y > blockSize / 2 ; y < _location.y + blockSize; y += blockSize / 2) {
                 for (uint16_t x = _location.x; x < _location.x + blockSize; x += blockSize / 2) {
                     uint16_t confidence = 0;
                     uint16_t support = 0;
 
                     for (uint16_t j = y; j < y + blockSize; j++) {
-                        uint32_t offset = j * W;
+                        uint32_t offset = j * (getWidth()/8);
 
                         for (uint16_t i = x; i < x + blockSize; i++) {
                             if (_changed[offset + i])
@@ -440,7 +440,7 @@ namespace EloquentSurveillance {
          *
          */
          template<typename Callback, typename Reducer>
-        void forEachBlock(Callback callback, Reducer& reducer, uint16_t x, uint16_t y, uint16_t width, uitn16_t height, uint8_t size) {
+        void forEachBlock(Callback callback, Reducer& reducer, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t size) {
             for (uint16_t j = y; j < height - size; j += size / 2) {
                 for (uint16_t i = x; i < width - size; i += size / 2) {
                     reducer.newBlock();
