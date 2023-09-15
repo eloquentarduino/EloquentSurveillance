@@ -261,9 +261,6 @@ namespace EloquentSurveillance {
          */
         void locate() {
             locate1();
-
-            if (_location.ratio < 0.85)
-                locate2();
         }
 
         /**
@@ -372,45 +369,11 @@ namespace EloquentSurveillance {
             _location.ratio = 0;
 
             uint8_t blockSize = _location.size;
+            const uint16_t H = getHeight() / 8;
+            const uint16_t W = getWidth() / 8;
 
-            for (uint16_t y = 0, H = getHeight() / 8; y < H - blockSize; y += blockSize / 2) {
-                for (uint16_t x = 0, W = getWidth() / 8; x < W - blockSize; x += blockSize / 2) {
-                    uint16_t confidence = 0;
-                    uint16_t support = 0;
-
-                    for (uint16_t j = y; j < y + blockSize; j++) {
-                        uint32_t offset = j * W;
-
-                        for (uint16_t i = x; i < x + blockSize; i++) {
-                            if (_changed[offset + i])
-                                confidence += 1;
-
-                            support += 1;
-                        }
-                    }
-
-                    float ratio = confidence / support;
-
-                    if (ratio > _location.ratio) {
-                        _location.y = y;
-                        _location.x = x;
-                        _location.ratio = ratio;
-                    }
-                }
-            }
-        }
-
-        /**
-         *
-         */
-        void locate2() {
-            _location.size = 4;
-            _location.ratio = 0;
-
-            uint8_t blockSize = _location.size;
-
-            for (uint16_t y = _location.y > blockSize / 2 ? ; y < _location.y + blockSize; y += blockSize / 2) {
-                for (uint16_t x = _location.x; x < _location.x + blockSize; x += blockSize / 2) {
+            for (uint16_t y = 0; y < H - blockSize; y += blockSize / 2) {
+                for (uint16_t x = 0; x < W - blockSize; x += blockSize / 2) {
                     uint16_t confidence = 0;
                     uint16_t support = 0;
 
@@ -440,7 +403,7 @@ namespace EloquentSurveillance {
          *
          */
          template<typename Callback, typename Reducer>
-        void forEachBlock(Callback callback, Reducer& reducer, uint16_t x, uint16_t y, uint16_t width, uitn16_t height, uint8_t size) {
+        void forEachBlock(Callback callback, Reducer& reducer, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t size) {
             for (uint16_t j = y; j < height - size; j += size / 2) {
                 for (uint16_t i = x; i < width - size; i += size / 2) {
                     reducer.newBlock();
