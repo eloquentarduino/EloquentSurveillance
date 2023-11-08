@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/eloquentarduino/EloquentSurveillance"
   },
-  "version": "0.1.17",
+  "version": "1.0.18",
   "authors": {
     "name": "Simone Salerno",
     "url": "https://github.com/eloquentarduino"
